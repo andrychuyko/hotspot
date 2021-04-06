@@ -16,7 +16,7 @@ nodogsplashstart="no"
 aptaddinstlist="tor openvpn"
 #
 snam="hotspot"
-eth_dev="eth0"
+eth_dev="wlan0"
 # freq_filter: 2|5 GHz band
 freq_filter="2"
 if [ "$freq_filter" != "5" ]; then freq_filter="2"; fi
@@ -33,7 +33,7 @@ ch_5GHz_160MHz="50 114"
 ch_prio=${ch_2GHz_ovrlap}" "${ch_2GHz_022MHz}" "${ch_5GHz_020MHz}" "${ch_5GHz_040MHz}" "${ch_5GHz_080MHz}" "${ch_5GHz_160MHz}
 # wl0_dev: on board wlan (e.g. wlan0)
 # wl1_dev: external wlan adaptor (optional)
-wl0_dev=""
+wl0_dev="wlan1"
 wl1_dev=""
 ap_dev="ap0"
 ap_devmac="b8:27:eb:00:00:00"
@@ -51,18 +51,6 @@ ap_revnet=`echo "$ap_ip" | awk -F "." '{ print $3"."$2"."$1 }'`
 ap_cauri="http://${ap_ip}/index.html"
 #
 tor_subn="10.192.0.0/10"
-#
-if [ "$wl0_dev" == "" ]; then
-# internal wlan adapter
-  wl0_devs=`ls -l --full-time /sys/class/net/ 2>/dev/null | grep -iE "mmc.*wlan" | cut -d" " -f9`
-  wl0_dev=`echo "$wl0_devs" | awk -F " " '{ print $1 }'`
-  if [ "$wl0_dev" == "" ]; then wl0_dev="wlan0"; fi
-fi
-if [ "$wl1_dev" == "" ]; then
-# external wlan adapter via usb
-  wl1_devs=`ls -l --full-time /sys/class/net/ 2>/dev/null | grep -iE "usb.*wlan" | cut -d" " -f9`
-  wl1_dev=`echo "$wl1_devs" | awk -F " " '{ print $1 }'`
-fi
 #
 wpactrl="/var/run/wpa_supplicant"
 wpasupg="/etc/wpa_supplicant/wpa_supplicant.conf"
@@ -754,7 +742,7 @@ dhcp-reply-delay=tag:client_is_a_pi,2
 
 # Never forward plain names (without a dot or domain part)
 domain-needed
-no-dhcp-interface=eth0,wlan0
+no-dhcp-interface=wlan0,wlan1
 listen-address=$ap_ip
 listen-address=127.0.0.1
 bind-interfaces
@@ -857,7 +845,7 @@ function Setup_hostapdconf {
 ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
 interface=$ap_dev
-driver=nl80211
+driver=rtl8723bu
 ignore_broadcast_ssid=0
 ap_isolate=0
 
